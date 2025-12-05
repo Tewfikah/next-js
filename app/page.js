@@ -1,85 +1,111 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [todos, setTodos] = useState([]);
 
-  const addTodo = () => {
-    if (!title || !description) return alert("Please fill all fields!");
+  // Fetch todos from API
+  const fetchTodos = async () => {
+    const res = await fetch("/api/todos");
+    const data = await res.json();
+    setTodos(data.data);
+  };
 
-    const newTodo = {
-      id: todos.length + 1,
-      title,
-      description,
-    };
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
-    setTodos([...todos, newTodo]);
-    setTitle("");
-    setDescription("");
+  // Add todo
+  const addTodo = async () => {
+    if (!title) return alert("Title is required");
+
+    const res = await fetch("/api/todos", {
+      method: "POST",
+      body: JSON.stringify({ title, description }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      setTitle("");
+      setDescription("");
+      fetchTodos();
+    }
+  };
+
+  // Delete todo
+  const deleteTodo = async (id) => {
+    await fetch("/api/todos", {
+      method: "DELETE",
+      body: JSON.stringify({ id }),
+    });
+
+    fetchTodos();
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black p-4">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl">
+    <div className="min-h-screen bg-zinc-50 dark:bg-black p-10">
+      <div className="max-w-2xl mx-auto bg-white p-6 rounded shadow">
 
-        <h1 className="text-2xl font-bold mb-4 text-center">Simple Todo</h1>
+        <h1 className="text-2xl font-bold mb-4">Todo App</h1>
 
-        {/* Input Area */}
-        <div className="flex flex-col gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Enter title"
-            className="border p-2 rounded-md"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+        {/* Input Form */}
+        <input
+          type="text"
+          placeholder="Title"
+          className="border p-2 w-full mb-3 rounded"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
 
-          <textarea
-            placeholder="Enter description"
-            className="border p-2 rounded-md h-24 resize-none"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          ></textarea>
+        <textarea
+          placeholder="Description"
+          className="border p-2 w-full mb-3 rounded"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-          <button
-            className="bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
-            onClick={addTodo}
-          >
-            Add
-          </button>
-        </div>
+        <button
+          onClick={addTodo}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Add Todo
+        </button>
 
         {/* Table */}
-        <table className="w-full border-collapse border border-gray-300">
-          <thead className="bg-gray-200">
-            <tr>
+        <table className="w-full mt-6 border">
+          <thead>
+            <tr className="bg-gray-200">
               <th className="border p-2">ID</th>
               <th className="border p-2">Title</th>
               <th className="border p-2">Description</th>
+              <th className="border p-2">Status</th>
+              <th className="border p-2">Action</th>
             </tr>
           </thead>
 
           <tbody>
             {todos.map((todo) => (
-              <tr key={todo.id}>
+              <tr key={todo.id} className="text-center">
                 <td className="border p-2">{todo.id}</td>
                 <td className="border p-2">{todo.title}</td>
                 <td className="border p-2">{todo.description}</td>
-              </tr>
-            ))}
-
-            {todos.length === 0 && (
-              <tr>
-                <td className="text-center p-3 text-gray-500" colSpan="3">
-                  No data yet.
+                <td className="border p-2">{todo.status}</td>
+                <td className="border p-2">
+                  <button
+                    onClick={() => deleteTodo(todo.id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
-            )}
+            ))}
           </tbody>
-        </table>
 
+        </table>
       </div>
     </div>
   );
