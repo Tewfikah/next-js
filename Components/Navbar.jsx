@@ -1,17 +1,19 @@
-import React from 'react'
+"use client";
+import React from "react";
 
-const navbar = () => {
+const Navbar = () => {
   return (
-    <div className='flex py-3 flex-wrap justify-around'>
-      <h1 className='text-lg font-semibold'> Todo APP</h1>
-      <ul className='flex gap-[40px] text-m'>
-        <li>Home</li>
-        <li>Products</li>
-        <li>About</li>
-        <li>Contact</li>
+    <div className="flex py-4 px-6 shadow-md justify-between items-center">
+      <h1 className="text-xl font-bold text-blue-600">Todo App</h1>
+
+      <ul className="flex gap-10 text-lg">
+        <li className="cursor-pointer hover:text-blue-500">Home</li>
+        <li className="cursor-pointer hover:text-blue-500">Products</li>
+        <li className="cursor-pointer hover:text-blue-500">About</li>
+        <li className="cursor-pointer hover:text-blue-500">Contact</li>
       </ul>
     </div>
-  )
-}
+  );
+};
 
-export default navbar
+export default Navbar;
